@@ -151,7 +151,7 @@ main:
 	sw $2, pcb_sp($1)
 	
 	#getting start locations
-	la $2, rocks_main
+	la $2, gameSelect_main
 	sw $2, pcb_ear($1)
 
 	#setting time slice
