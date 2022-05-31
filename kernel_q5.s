@@ -103,7 +103,7 @@ main:
 	sw $2, pcb_sp($1)
 	
 	#getting start locations
-	la $2, serial_main
+	la $2, parallel_main
 	sw $2, pcb_ear($1)
 	
 	#setting time slice
@@ -126,7 +126,7 @@ main:
 	sw $2, pcb_sp($1)
 	
 	#getting start locations
-	la $2, parallel_main
+	la $2, serial_main
 	sw $2, pcb_ear($1)
 
 	#setting time slice
