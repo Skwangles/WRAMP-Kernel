@@ -51,7 +51,7 @@ void serial_main(){
 				printChar(':');
 				printChar((printTemp-6000*numOfMinutes)/1000 % 10 + 0x30);
 				printChar((printTemp-6000*numOfMinutes)/100 % 10 + 0x30);
-				printChar(' ');//When 0x30 is readded it == ' '
+				printChar(' ');
 				printChar(' ');
 			}
 			else if(outputType == 2){// ssss.ss
@@ -73,7 +73,7 @@ void serial_main(){
 				printChar((printTemp/100) % 10 + 0x30);
 				printChar((printTemp/10) % 10 + 0x30);
 				printChar(printTemp % 10 + 0x30);
-				printChar(' '-0x30);			
+				printChar(' ');			
 			}
 			//If not 1, 2, 3 or q, skip
 			
