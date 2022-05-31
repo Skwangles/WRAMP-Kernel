@@ -51,6 +51,8 @@ task2_pcb:
 	.space 20
 task3_pcb:
 	.space 20
+idle_pcb:
+	.space 20
 	
 #num1 stack
 	.space 200
@@ -63,6 +65,10 @@ task2_stack:
 # num3 stack
 	.space 200
 task3_stack:
+
+#idle stack
+	.space 2 #doesn't use stack, so doesn't need much
+idle_stack:
 	
 .text
 .global main
@@ -187,6 +193,36 @@ main:
 	# cctrl values
 	sw $5, pcb_cctrl($1)
 	
+	#--------IDLE pcb------
+	
+	#start address for context
+	la $1, idle_pcb
+	
+	#get link to next pcb
+	la $2, idle_pcb
+	sw $2, pcb_link($1)
+	
+	#set parent - doesn't matter
+	sw $0, pcb_parent($1)
+	
+	#get stack pointer
+	la $2, idle_stack
+	sw $2, pcb_sp($1)
+	
+	#doesn't matter what ra is
+	sw $0, pcb_ra($1)
+	
+	#getting start locations
+	la $2, idle_loop
+	sw $2, pcb_ear($1)
+
+	#setting time slice
+	addi $2, $0, 1
+	sw $2, pcb_timeslice($1)
+
+	# cctrl values
+	sw $5, pcb_cctrl($1)
+	
 	j load_context # jump to dispatcher
 	
 remove:
@@ -198,18 +234,21 @@ remove:
 	
 	#check if pointing to itself
 	seq $1, $3, $1
-	bnez $1, idle_loop
+	bnez $1, is_last
 	
 	sw $3, pcb_link($2) #save to parent's link
 	sw $2, pcb_parent($3)
 	j schedule # switch to the current's next
 	
+	is_last:
+	#if pointing to self - replace with idle
+	lw $1, current_task($0)
+	la $3, idle_pcb
+	sw $3, pcb_link($1)
+	j schedule
+	
 idle_loop:
-	#setup idle
-	addi $1, $0, 0
-	sw $1,	par_ctrl($0) #Update to show manual ssd mode
-	inf_loop:
-	# spells idLE
+	sw $0,	par_ctrl($0) #Update to show manual ssd mode
 	addi $1, $0, 0x6
 	sw $1,	par_ulssd($0)
 	addi $1, $0, 0x5e
@@ -218,9 +257,9 @@ idle_loop:
 	sw $1,	par_llssd($0)
 	addi $1, $0, 0x79
 	sw $1,	par_lrssd($0)
-	
-	j inf_loop# infinite loop
-	
+	j idle_loop
+
+
 handler:
 	movsg $13, $estat
 	andi $13, $13, 0xffb0 # check if estat is ONLY timer - anything else default
